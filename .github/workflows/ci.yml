@@ -8,10 +8,14 @@ jobs:
   unit:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         php: ["8.2", "8.3", "8.4"]
     container: php:${{ matrix.php }}-cli
     steps:
+      # without git, actions/checkout downloads the archive, which leaves out export-ignore paths (tests/)
+      - name: Install git
+        run: apt-get update -qq && apt-get install -y -qq git >/dev/null
       - uses: actions/checkout@v4
       - name: Syntax check
         run: for f in setup.php hook.php front/config.form.php src/LoginDomain.php tests/run_tests.php; do php -l "$f"; done
